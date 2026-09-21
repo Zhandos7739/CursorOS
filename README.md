@@ -1,71 +1,60 @@
 # CursorOS
 
-Обзор среды, в которой крутится **Cursor Cloud Agent** (снимок от 2026-09-20).
+Обзор среды **Cursor Cloud Agent** + готовый пакет, чтобы поставить похожий desktop на свой **Ubuntu VDS**.
 
-Это не отдельная ОС Cursor — это Linux-контейнер/ВМ на базе Ubuntu, поднятая под агента.
+> **Поставить на VDS:** см. **[vds/INSTALL.md](vds/INSTALL.md)**  
+> Коротко: `sudo bash vds/install.sh` → задать VNC-пароль → открыть `http://IP:6080/vnc.html`
 
-## Система
+## Что это
+
+Не отдельная ОС Cursor. В агенте крутится Linux-контейнер на **Ubuntu 24.04** с XFCE, TigerVNC и noVNC (бренд AnyOS).
+
+В этом репо:
+
+1. Снимок того, что видит агент (ниже)
+2. Установщик **того же стиля desktop** для VDS, но с **принудительным VNC-логином** (`VncAuth`)
+
+## Система агента (снимок 2026-09-20)
 
 | Параметр | Значение |
 | --- | --- |
 | Дистрибутив | **Ubuntu 24.04.4 LTS** (Noble Numbat) |
-| Ядро | Linux **6.12.94+** (`PREEMPT_DYNAMIC`, SMP) |
-| Архитектура | **x86_64** |
-| Hostname | `cursor` |
-| Виртуализация | **KVM** (full), CPU: Intel Xeon (hypervisor) |
-| Пользователь | `ubuntu` (uid 1000, группа `sudo`) |
-| Shell | `/bin/bash` |
-| Locale | `en_US.UTF-8` |
-| Workspace | `/workspace` |
+| Ядро | Linux **6.12.94+** |
+| Архитектура | **x86_64** / KVM |
+| Desktop | XFCE + Plank, 1920×1200 @ 96 DPI |
+| VNC | TigerVNC `:1` → порт `5901` (localhost) |
+| Web | noVNC (у агента порт `26058`) |
+| User | `ubuntu` · bash · `/workspace` |
+| RAM / диск | ~16 GiB · overlay ~252 GiB |
 
-Корневая ФС — **overlay** (~252 GiB, занято ~5%). Swap отсутствует.
-
-## Железо (эмулированное / выделенное)
-
-- **CPU:** 4 vCPU, Intel Xeon, VT-x, AVX-512 / AMX и др.
-- **RAM:** ~16 GiB (`MemTotal` ≈ 15.6 GiB), без swap
-- **Load:** типичный свежий бут агента — низкая нагрузка в первые минуты
-
-## Toolchain (из коробки)
+### Toolchain
 
 | Инструмент | Версия |
 | --- | --- |
-| Node.js | v22.14.0 (`/exec-daemon/node`) |
-| npm | 10.9.7 (через nvm, Node v22.22.2 path) |
+| Node.js | v22.14.0 |
 | Python | 3.12.3 |
 | Git | 2.43.0 |
 
-Также присутствуют служебные пути Cursor: `/exec-daemon`, `/cursor`, `/pod-daemon`, `/packages`.
+## VDS-пакет (`vds/`)
 
-## Layout ФС (верхний уровень)
+| Файл | Назначение |
+| --- | --- |
+| `vds/install.sh` | установка XFCE + TigerVNC + noVNC + systemd |
+| `vds/INSTALL.md` | пошаговая инструкция на русском |
+| `vds/scripts/xstartup` | старт XFCE (как у агента) |
+| `vds/systemd/*.service` | автозапуск VNC / noVNC |
+| `vds/config.env.example` | порты и геометрия |
 
-```
-/anyrun-init  /bin  /boot  /cursor  /dev  /etc  /exec-daemon
-/home  /lib  /opt  /packages  /pod-daemon  /proc  /root  /run
-/sys  /tmp  /usr  /var  /workspace
-```
-
-Рабочий репозиторий монтируется в **`/workspace`**.
-
-## Среда Cloud Agent
-
-- Репозиторий по умолчанию: `github.com/Zhandos7739/CursorOS`
-- Egress: без жёсткого allowlist (неrestricted в этом запуске)
-- Environment: Personal (runtime forward-fill), без готового environment build snapshot
-
-## Как воспроизвести снимок
-
-На машине агента:
+**Важно:** на VDS пароль VNC обязателен. Без `~/.vnc/passwd` сервис не стартует. Сырой порт `5901` наружу не открывается.
 
 ```bash
-uname -a
-cat /etc/os-release
-lscpu
-free -h
-df -h /
-node -v && python3 --version && git --version
+git clone https://github.com/Zhandos7739/CursorOS.git
+cd CursorOS
+sudo bash vds/install.sh
 ```
+
+Подробности и SSH-туннель: [vds/INSTALL.md](vds/INSTALL.md).
 
 ---
 
-*Документ описывает конкретный ран Cloud Agent; версии и квоты могут отличаться между запусками.*
+*Снимок агента может отличаться между запусками; VDS-скрипт целится в Ubuntu 22.04/24.04.*

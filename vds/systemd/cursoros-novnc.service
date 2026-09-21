@@ -1,0 +1,19 @@
+[Unit]
+Description=CursorOS noVNC (browser access to VNC)
+After=cursoros-vnc.service
+Requires=cursoros-vnc.service
+
+[Service]
+Type=simple
+User=CURSOROS_USER_PLACEHOLDER
+Group=CURSOROS_USER_PLACEHOLDER
+EnvironmentFile=-/etc/cursoros/config.env
+ExecStart=/usr/local/bin/websockify \
+  --web=/usr/share/novnc \
+  ${NOVNC_PORT} \
+  localhost:${VNC_PORT}
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
