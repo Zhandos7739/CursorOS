@@ -1,0 +1,22 @@
+#!/bin/bash
+# TigerVNC xstartup — XFCE как в Cursor Cloud Agent (AnyOS-стиль)
+set -euo pipefail
+
+[ -f "$HOME/.Xresources" ] && xrdb -merge "$HOME/.Xresources"
+
+export GDK_SCALE="${GDK_SCALE:-1}"
+export GDK_DPI_SCALE="${GDK_DPI_SCALE:-1}"
+export QT_SCALE_FACTOR="${QT_SCALE_FACTOR:-1}"
+export XCURSOR_SIZE="${XCURSOR_SIZE:-24}"
+export ELECTRON_FORCE_IS_PACKAGED=0
+export ELECTRON_FORCE_DEVICE_SCALE_FACTOR="${GDK_SCALE}"
+export LIBGL_ALWAYS_SOFTWARE=1
+export GALLIUM_DRIVER=llvmpipe
+export LANG="${LANG:-en_US.UTF-8}"
+
+# Лёгкий dock (если установлен plank)
+if command -v plank >/dev/null 2>&1; then
+  (sleep 2 && plank) &
+fi
+
+exec /usr/bin/startxfce4
