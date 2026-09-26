@@ -13,6 +13,11 @@
 
 1. Снимок того, что видит агент (ниже)
 2. Установщик **того же стиля desktop** для VDS, но с **принудительным VNC-логином** (`VncAuth`)
+3. **C++ Qt6-приложение** [`app/`](app/) — десктоп CursorOS в одном окне (панель, док, Terminal/Files/About)
+
+```bash
+cd app && cmake -S . -B build && cmake --build build -j && ./build/cursoros
+```
 
 ## Система агента (снимок 2026-09-20)
 
