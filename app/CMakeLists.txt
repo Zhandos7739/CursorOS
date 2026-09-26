@@ -1,21 +1,19 @@
 cmake_minimum_required(VERSION 3.16)
-project(CursorOSApp LANGUAGES CXX)
+project(CursorOS LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_AUTOMOC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+add_executable(CursorOS WIN32 src/CursorOS.cpp)
+target_compile_definitions(CursorOS PRIVATE UNICODE _UNICODE)
 
-add_executable(cursoros
-  src/main.cpp
-  src/DesktopShell.cpp
-  src/DesktopShell.hpp
-  src/FloatingWindow.cpp
-  src/FloatingWindow.hpp
-  src/Theme.hpp
-)
+if (MSVC)
+  target_compile_options(CursorOS PRIVATE /W4 /utf-8)
+else()
+  target_compile_options(CursorOS PRIVATE -Wall -Wextra)
+  target_link_options(CursorOS PRIVATE -static-libgcc -static-libstdc++ -mwindows)
+endif()
 
-target_link_libraries(cursoros PRIVATE Qt6::Widgets)
+target_link_libraries(CursorOS PRIVATE user32 gdi32 msimg32 shell32)
 
-install(TARGETS cursoros RUNTIME DESTINATION bin)
+install(TARGETS CursorOS RUNTIME DESTINATION bin)

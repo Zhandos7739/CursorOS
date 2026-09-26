@@ -1,5 +1,8 @@
-/build/
-*.user
 *.o
+*.obj
+*.pdb
+*.ilk
+/build/
 CMakeCache.txt
 CMakeFiles/
+!.gitkeep
